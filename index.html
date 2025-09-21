@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Site com Foto, Música e Confetes</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      text-align: center;
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(135deg, #1d2671, #c33764);
+      color: white;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+    }
+
+    img {
+      max-width: 250px;
+      border-radius: 20px;
+      box-shadow: 0px 4px 20px rgba(0,0,0,0.5);
+      margin-bottom: 20px;
+    }
+
+    button {
+      padding: 15px 30px;
+      font-size: 18px;
+      border: none;
+      border-radius: 50px;
+      background: #ff4081;
+      color: white;
+      cursor: pointer;
+      box-shadow: 0px 4px 15px rgba(0,0,0,0.4);
+      transition: transform 0.2s ease, background 0.3s ease;
+    }
+
+    button:hover {
+      background: #e91e63;
+      transform: scale(1.05);
+    }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img src="issa.jpg" alt="Minha Foto">
+    <br>
+    <button id="playButton">🎶 Tocar Música & Confetes 🎉</button>
+    <audio id="myAudio" src="issa.mp3"></audio>
+  </div>
+  
+  <canvas id="confetti"></canvas>
+
+  <script>
+    const button = document.getElementById("playButton");
+    const audio = document.getElementById("myAudio");
+    const canvas = document.getElementById("confetti");
+    const ctx = canvas.getContext("2d");
+
+    // Ajusta tamanho do canvas
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    window.addEventListener("resize", () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+
+    // Criar confetes
+    const confettiCount = 300;
+    const confetti = [];
+
+    for (let i = 0; i < confettiCount; i++) {
+      confetti.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 6 + 4,
+        d: Math.random() * confettiCount,
+        color: `hsl(${Math.random() * 360}, 100%, 50%)`,
+        tilt: Math.floor(Math.random() * 10) - 10,
+        tiltAngleIncremental: Math.random() * 0.07 + 0.05,
+        tiltAngle: 0
+      });
+    }
+
+    function drawConfetti() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      confetti.forEach((c) => {
+        ctx.beginPath();
+        ctx.lineWidth = c.r / 2;
+        ctx.strokeStyle = c.color;
+        ctx.moveTo(c.x + c.tilt + c.r / 4, c.y);
+        ctx.lineTo(c.x + c.tilt, c.y + c.tilt + c.r / 4);
+        ctx.stroke();
+      });
+      updateConfetti();
+    }
+
+    function updateConfetti() {
+      confetti.forEach((c, i) => {
+        c.tiltAngle += c.tiltAngleIncremental;
+        c.y += (Math.cos(c.d) + 3 + c.r / 2) / 2;
+        c.x += Math.sin(0.01 * c.d);
+        c.tilt = Math.sin(c.tiltAngle - i / 3) * 15;
+
+        if (c.y > canvas.height) {
+          c.y = -10;
+          c.x = Math.random() * canvas.width;
+        }
+      });
+    }
+
+    function animateConfetti() {
+      drawConfetti();
+      requestAnimationFrame(animateConfetti);
+    }
+
+    // Ao clicar no botão
+    button.addEventListener("click", () => {
+      audio.play();
+      animateConfetti();
+      button.disabled = true; // Desabilita para não clicar várias vezes
+    });
+  </script>
+</body>
+</html>
